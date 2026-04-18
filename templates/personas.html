@@ -36,10 +36,15 @@
         <tr class="hover:bg-slate-50 transition">
           <td class="px-5 py-3 font-medium text-slate-800 capitalize">{{ p.nombre }}</td>
           <td class="px-5 py-3 text-right">
-            <form method="post" action="{{ url_for('eliminar_persona', id=p.id) }}"
-                  onsubmit="return confirm('¿Eliminar a {{ p.nombre }}?')">
+            <form method="post" action="{{ url_for('eliminar_persona', id=p.id) }}" class="flex items-center justify-end gap-2">
+              {% if error_id == p.id %}
+              <span class="text-xs text-rose-500">Contraseña incorrecta</span>
+              {% endif %}
+              <input type="password" name="clave" required
+                     class="w-32 border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-rose-300"
+                     placeholder="Contraseña">
               <button type="submit"
-                      class="text-xs px-3 py-1.5 rounded-lg text-rose-500 hover:bg-rose-50 border border-rose-200 transition">
+                      class="text-xs px-3 py-1.5 rounded-lg text-rose-500 hover:bg-rose-50 border border-rose-200 transition whitespace-nowrap">
                 <i class="bi bi-trash"></i> Eliminar
               </button>
             </form>

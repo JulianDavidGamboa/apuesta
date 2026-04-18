@@ -382,7 +382,7 @@ def calendario():
 @app.route('/personas')
 def personas():
     lista = query('SELECT * FROM personas ORDER BY nombre ASC')
-    return render_template('personas.html', personas=lista)
+    return render_template('personas.html', personas=lista, error_id=None)
 
 
 @app.route('/personas/agregar', methods=['POST'])
@@ -401,6 +401,11 @@ def agregar_persona():
 
 @app.route('/personas/<int:id>/eliminar', methods=['POST'])
 def eliminar_persona(id):
+    clave = request.form.get('clave', '')
+    clave_correcta = os.environ.get('DELETE_PASSWORD', '')
+    if not clave_correcta or clave != clave_correcta:
+        lista = query('SELECT * FROM personas ORDER BY nombre ASC')
+        return render_template('personas.html', personas=lista, error_id=id)
     execute(_sql('DELETE FROM personas WHERE id = ?'), (id,))
     return redirect(url_for('personas'))
 
