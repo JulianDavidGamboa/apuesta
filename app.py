@@ -247,8 +247,8 @@ def resumen():
             LOWER(TRIM(p.nombre)) AS nombre,
             COUNT(DISTINCT p.ronda_id) AS rondas,
             SUM(r.total_inicial * p.porcentaje / 100) AS total_capital,
-            SUM(r.total_ganado  * p.porcentaje / 100) AS total_ganado,
-            SUM((r.total_inicial + r.total_ganado) * p.porcentaje / 100) AS total_recibido
+            SUM((r.total_ganado - r.total_inicial) * p.porcentaje / 100) AS total_ganado,
+            SUM(r.total_ganado * p.porcentaje / 100) AS total_recibido
         FROM participantes p
         JOIN rondas r ON p.ronda_id = r.id
         GROUP BY LOWER(TRIM(p.nombre))
@@ -320,8 +320,8 @@ def exportar_excel():
     resumen_data = query('''
         SELECT LOWER(TRIM(p.nombre)) AS nombre, COUNT(DISTINCT p.ronda_id) AS rondas,
                SUM(r.total_inicial * p.porcentaje / 100) AS total_capital,
-               SUM(r.total_ganado  * p.porcentaje / 100) AS total_ganado,
-               SUM((r.total_inicial + r.total_ganado) * p.porcentaje / 100) AS total_recibido
+               SUM((r.total_ganado - r.total_inicial) * p.porcentaje / 100) AS total_ganado,
+               SUM(r.total_ganado * p.porcentaje / 100) AS total_recibido
         FROM participantes p JOIN rondas r ON p.ronda_id = r.id
         GROUP BY LOWER(TRIM(p.nombre)) ORDER BY total_ganado DESC
     ''')
