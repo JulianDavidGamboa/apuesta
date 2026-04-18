@@ -69,6 +69,10 @@
                   {{ 'bg-indigo-400 text-white' if ep == 'nueva_ronda' else 'bg-indigo-600 text-white hover:bg-indigo-500' }}">
           <i class="bi bi-plus-lg"></i> Nueva ronda
         </a>
+        <a href="https://docs.google.com/document/d/1uYGqfkzYCspucwf3HZQSmRgHaCZkfYv8CQwTBT4mBfU/edit?tab=t.0" target="_blank"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
+          <i class="bi bi-file-earmark-text"></i> Docs
+        </a>
       </div>
 
       <!-- Mobile menu button -->
@@ -104,6 +108,10 @@
       <a href="{{ url_for('nueva_ronda') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition
          {{ 'bg-indigo-400 text-white' if ep == 'nueva_ronda' else 'bg-indigo-600 text-white' }}">
         <i class="bi bi-plus-lg"></i> Nueva ronda
+      </a>
+      <a href="https://docs.google.com/document/d/1uYGqfkzYCspucwf3HZQSmRgHaCZkfYv8CQwTBT4mBfU/edit?tab=t.0" target="_blank"
+         class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
+        <i class="bi bi-file-earmark-text"></i> Docs
       </a>
     </div>
   </div>
