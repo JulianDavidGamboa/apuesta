@@ -339,6 +339,24 @@ def estadisticas():
                            chart_data=json.dumps(chart_data))
 
 
+@app.route('/calendario')
+def calendario():
+    rondas = query('SELECT * FROM rondas ORDER BY fecha ASC')
+    rondas_por_fecha = {}
+    for r in rondas:
+        fecha_dia = r['fecha'][:10]
+        if fecha_dia not in rondas_por_fecha:
+            rondas_por_fecha[fecha_dia] = []
+        rondas_por_fecha[fecha_dia].append({
+            'id': r['id'],
+            'nombre': r['nombre'],
+            'total_inicial': r['total_inicial'],
+            'total_ganado': r['total_ganado'],
+            'ganancia': r['total_ganado'] - r['total_inicial'],
+        })
+    return render_template('calendario.html', rondas_por_fecha=json.dumps(rondas_por_fecha))
+
+
 @app.route('/exportar')
 def exportar_excel():
     rondas = query('SELECT * FROM rondas ORDER BY fecha DESC')
