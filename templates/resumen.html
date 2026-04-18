@@ -58,6 +58,7 @@
           <th class="text-end">Total ganado</th>
           <th class="text-end">Total recibido</th>
           <th class="text-end">Ganancia neta</th>
+          <th class="text-end">% del total ganado</th>
           <th class="text-end">ROI</th>
         </tr>
       </thead>
@@ -76,6 +77,10 @@
           <td class="text-end {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
             {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_neta) }}
           </td>
+          {% set pct_ganado = (d.total_ganado / total_global_ganado * 100) if total_global_ganado > 0 else 0 %}
+          <td class="text-end">
+            <span class="badge bg-dark">{{ '{:.1f}'.format(pct_ganado) }}%</span>
+          </td>
           <td class="text-end {% if roi >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
             {% if roi >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi) }}%
           </td>
@@ -93,6 +98,7 @@
           <th class="text-end {% if ganancia_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
             {% if ganancia_global >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_global) }}
           </th>
+          <th class="text-end"><span class="badge bg-dark">100%</span></th>
           {% set roi_global = (ganancia_global / total_global_capital * 100) if total_global_capital > 0 else 0 %}
           <th class="text-end {% if roi_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
             {% if roi_global >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_global) }}%
