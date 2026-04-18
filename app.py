@@ -194,7 +194,7 @@ def calcular_tabla(ronda, participantes):
 
 @app.route('/')
 def index():
-    rondas = query('SELECT * FROM rondas ORDER BY fecha DESC')
+    rondas = query('SELECT * FROM rondas ORDER BY id DESC')
     return render_template('index.html', rondas=rondas)
 
 
