@@ -1,133 +1,136 @@
 {% extends 'base.html' %}
-{% block title %}Resumen — Dinero{% endblock %}
+{% block title %}Resumen — Kuazimides{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h4 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Resumen por persona</h4>
-  <a href="{{ url_for('exportar_excel') }}" class="btn btn-success btn-sm">
-    <i class="bi bi-file-earmark-excel me-1"></i>Descargar Excel
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+    <i class="bi bi-bar-chart text-indigo-500"></i> Resumen por persona
+  </h1>
+  <a href="{{ url_for('exportar_excel') }}"
+     class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition font-medium">
+    <i class="bi bi-file-earmark-excel"></i> Descargar Excel
   </a>
 </div>
 
 {% if not datos %}
-<div class="card">
-  <div class="card-body text-center py-5 text-muted">
-    <i class="bi bi-people fs-1 d-block mb-2"></i>
-    No hay datos todavía. <a href="{{ url_for('nueva_ronda') }}">Crea una ronda.</a>
-  </div>
+<div class="bg-white rounded-2xl shadow-sm p-12 text-center text-slate-400">
+  <i class="bi bi-people text-5xl block mb-3"></i>
+  <p>No hay datos todavía. <a href="{{ url_for('nueva_ronda') }}" class="text-indigo-500 hover:underline">Crea una ronda.</a></p>
 </div>
 {% else %}
 
-<!-- Tarjetas resumen global -->
-{% set total_global_capital = datos|sum(attribute='total_capital') %}
-{% set total_global_ganado  = datos|sum(attribute='total_ganado') %}
+{% set total_global_capital  = datos|sum(attribute='total_capital') %}
+{% set total_global_ganado   = datos|sum(attribute='total_ganado') %}
 {% set total_global_recibido = datos|sum(attribute='total_recibido') %}
-<div class="row g-3 mb-4">
-  <div class="col-6 col-md-4">
-    <div class="stat-box">
-      <div class="small text-muted">Capital total aportado</div>
-      <div class="value">${{ '{:,.0f}'.format(total_global_capital) }}</div>
-    </div>
+
+<!-- Stat cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center">
+    <p class="text-xs text-slate-500 mb-1 uppercase tracking-wide">Capital total aportado</p>
+    <p class="text-2xl font-bold text-slate-800">${{ '{:,.0f}'.format(total_global_capital) }}</p>
   </div>
-  <div class="col-6 col-md-4">
-    <div class="stat-box">
-      <div class="small text-muted">Total ganado (suma)</div>
-      <div class="value profit-positive">${{ '{:,.0f}'.format(total_global_ganado) }}</div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center">
+    <p class="text-xs text-slate-500 mb-1 uppercase tracking-wide">Total ganado (grupo)</p>
+    <p class="text-2xl font-bold text-emerald-600">+${{ '{:,.0f}'.format(total_global_ganado) }}</p>
   </div>
-  <div class="col-6 col-md-4">
-    <div class="stat-box">
-      <div class="small text-muted">Total recibido</div>
-      <div class="value">${{ '{:,.0f}'.format(total_global_recibido) }}</div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center">
+    <p class="text-xs text-slate-500 mb-1 uppercase tracking-wide">Total recibido</p>
+    <p class="text-2xl font-bold text-slate-800">${{ '{:,.0f}'.format(total_global_recibido) }}</p>
   </div>
 </div>
 
-<!-- Tabla por persona -->
-<div class="card">
-  <div class="card-header bg-dark text-white">
-    <i class="bi bi-people me-2"></i>Acumulado por persona
+<!-- Tabla -->
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
+  <div class="px-6 py-4 border-b border-slate-100">
+    <h2 class="font-semibold text-slate-700 flex items-center gap-2">
+      <i class="bi bi-people text-indigo-500"></i> Acumulado por persona
+    </h2>
   </div>
-  <div class="table-responsive">
-    <table class="table table-hover mb-0">
-      <thead>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-900 text-white text-xs uppercase tracking-wide">
         <tr>
-          <th>Persona</th>
-          <th class="text-center">Rondas</th>
-          <th class="text-end">Capital total dado</th>
-          <th class="text-end">Total ganado</th>
-          <th class="text-end">Total recibido</th>
-          <th class="text-end">Ganancia neta</th>
-          <th class="text-end">% del total ganado</th>
-          <th class="text-end">ROI</th>
+          <th class="px-5 py-3 text-left">Persona</th>
+          <th class="px-5 py-3 text-center">Rondas</th>
+          <th class="px-5 py-3 text-right">Capital total dado</th>
+          <th class="px-5 py-3 text-right">Total ganado</th>
+          <th class="px-5 py-3 text-right">Total recibido</th>
+          <th class="px-5 py-3 text-right">Ganancia neta</th>
+          <th class="px-5 py-3 text-right">% del total ganado</th>
+          <th class="px-5 py-3 text-right">ROI</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-slate-100">
         {% for d in datos %}
         {% set ganancia_neta = d.total_recibido - d.total_capital %}
         {% set roi = (ganancia_neta / d.total_capital * 100) if d.total_capital > 0 else 0 %}
-        <tr>
-          <td class="fw-semibold">{{ d.nombre }}</td>
-          <td class="text-center">
-            <span class="badge bg-secondary">{{ d.rondas }}</span>
+        {% set pct_ganado = (d.total_ganado / total_global_ganado * 100) if total_global_ganado > 0 else 0 %}
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-5 py-3.5 font-semibold text-slate-800 capitalize">{{ d.nombre }}</td>
+          <td class="px-5 py-3.5 text-center">
+            <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 rounded-full">{{ d.rondas }}</span>
           </td>
-          <td class="text-end">${{ '{:,.0f}'.format(d.total_capital) }}</td>
-          <td class="text-end profit-positive">${{ '{:,.0f}'.format(d.total_ganado) }}</td>
-          <td class="text-end fw-bold">${{ '{:,.0f}'.format(d.total_recibido) }}</td>
-          <td class="text-end {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+          <td class="px-5 py-3.5 text-right text-slate-700">${{ '{:,.0f}'.format(d.total_capital) }}</td>
+          <td class="px-5 py-3.5 text-right font-medium text-emerald-600">+${{ '{:,.0f}'.format(d.total_ganado) }}</td>
+          <td class="px-5 py-3.5 text-right font-bold text-slate-800">${{ '{:,.0f}'.format(d.total_recibido) }}</td>
+          <td class="px-5 py-3.5 text-right font-medium {% if ganancia_neta >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
             {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_neta) }}
           </td>
-          {% set pct_ganado = (d.total_ganado / total_global_ganado * 100) if total_global_ganado > 0 else 0 %}
-          <td class="text-end">
-            <span class="badge bg-dark">{{ '{:.1f}'.format(pct_ganado) }}%</span>
+          <td class="px-5 py-3.5 text-right">
+            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full">
+              {{ '{:.1f}'.format(pct_ganado) }}%
+            </span>
           </td>
-          <td class="text-end {% if roi >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+          <td class="px-5 py-3.5 text-right font-medium {% if roi >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
             {% if roi >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi) }}%
           </td>
         </tr>
         {% endfor %}
       </tbody>
-      <tfoot class="table-dark">
-        <tr>
-          <th>Total</th>
-          <td class="text-center">—</td>
-          <th class="text-end">${{ '{:,.0f}'.format(total_global_capital) }}</th>
-          <th class="text-end">${{ '{:,.0f}'.format(total_global_ganado) }}</th>
-          <th class="text-end">${{ '{:,.0f}'.format(total_global_recibido) }}</th>
+      <tfoot>
+        <tr class="bg-slate-900 text-white font-semibold text-sm">
+          <td class="px-5 py-3">Total</td>
+          <td class="px-5 py-3 text-center">—</td>
+          <td class="px-5 py-3 text-right">${{ '{:,.0f}'.format(total_global_capital) }}</td>
+          <td class="px-5 py-3 text-right text-emerald-400">+${{ '{:,.0f}'.format(total_global_ganado) }}</td>
+          <td class="px-5 py-3 text-right">${{ '{:,.0f}'.format(total_global_recibido) }}</td>
           {% set ganancia_global = total_global_recibido - total_global_capital %}
-          <th class="text-end {% if ganancia_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+          <td class="px-5 py-3 text-right {% if ganancia_global >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
             {% if ganancia_global >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_global) }}
-          </th>
-          <th class="text-end"><span class="badge bg-dark">100%</span></th>
+          </td>
+          <td class="px-5 py-3 text-right text-indigo-300">100%</td>
           {% set roi_global = (ganancia_global / total_global_capital * 100) if total_global_capital > 0 else 0 %}
-          <th class="text-end {% if roi_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+          <td class="px-5 py-3 text-right {% if roi_global >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
             {% if roi_global >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_global) }}%
-          </th>
+          </td>
         </tr>
       </tfoot>
     </table>
   </div>
 </div>
 
-<!-- Barras de progreso por persona -->
-<div class="card mt-4">
-  <div class="card-header bg-dark text-white">
-    <i class="bi bi-graph-up me-2"></i>Participación relativa
+<!-- Barras de participación -->
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+  <div class="px-6 py-4 border-b border-slate-100">
+    <h2 class="font-semibold text-slate-700 flex items-center gap-2">
+      <i class="bi bi-graph-up text-indigo-500"></i> Participación relativa
+    </h2>
   </div>
-  <div class="card-body">
+  <div class="px-6 py-5 space-y-4">
     {% for d in datos %}
     {% set pct = (d.total_capital / total_global_capital * 100) if total_global_capital > 0 else 0 %}
-    <div class="mb-3">
-      <div class="d-flex justify-content-between mb-1">
-        <span class="fw-semibold">{{ d.nombre }}</span>
-        <span class="text-muted small">{{ '{:.1f}'.format(pct) }}% del capital total</span>
+    <div>
+      <div class="flex justify-between mb-1.5 text-sm">
+        <span class="font-semibold text-slate-700 capitalize">{{ d.nombre }}</span>
+        <span class="text-slate-400 text-xs">{{ '{:.1f}'.format(pct) }}% del capital total</span>
       </div>
-      <div class="progress" style="height:10px">
-        <div class="progress-bar bg-dark" style="width:{{ pct }}%"></div>
+      <div class="w-full bg-slate-100 rounded-full h-2">
+        <div class="bg-indigo-500 h-2 rounded-full transition-all" style="width:{{ pct }}%"></div>
       </div>
     </div>
     {% endfor %}
   </div>
 </div>
+
 {% endif %}
 {% endblock %}

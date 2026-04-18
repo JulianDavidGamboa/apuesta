@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, s
 from datetime import datetime
 import os
 import io
+import json
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 
@@ -307,11 +308,35 @@ def estadisticas():
         ORDER BY ganancia_neta DESC
     ''')
 
+    # Datos para gráficas: ganancia por ronda por persona
+    detalle_chart = query('''
+        SELECT
+            LOWER(TRIM(p.nombre)) AS nombre,
+            r.nombre AS ronda_nombre,
+            r.fecha,
+            (r.total_ganado - r.total_inicial) * p.porcentaje / 100 AS ganancia
+        FROM participantes p
+        JOIN rondas r ON p.ronda_id = r.id
+        ORDER BY LOWER(TRIM(p.nombre)), r.fecha ASC
+    ''')
+
+    chart_data = {}
+    for row in detalle_chart:
+        n = row['nombre']
+        if n not in chart_data:
+            chart_data[n] = {'labels': [], 'ganancias': [], 'acumulado': []}
+        chart_data[n]['labels'].append(row['ronda_nombre'])
+        g = round(float(row['ganancia']), 2)
+        chart_data[n]['ganancias'].append(g)
+        prev = chart_data[n]['acumulado'][-1] if chart_data[n]['acumulado'] else 0
+        chart_data[n]['acumulado'].append(round(prev + g, 2))
+
     return render_template('estadisticas.html',
                            globales=globales,
                            mejor_ronda=mejor_ronda,
                            peor_ronda=peor_ronda,
-                           por_persona=por_persona)
+                           por_persona=por_persona,
+                           chart_data=json.dumps(chart_data))
 
 
 @app.route('/exportar')

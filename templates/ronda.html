@@ -1,106 +1,107 @@
 {% extends 'base.html' %}
-{% block title %}{{ ronda.nombre }} — Dinero{% endblock %}
+{% block title %}{{ ronda.nombre }} — Kuazimides{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+<div class="flex flex-wrap items-start justify-between gap-3 mb-6">
   <div>
-    <h4 class="mb-0">{{ ronda.nombre }}</h4>
-    <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ ronda.fecha }}</small>
+    <h1 class="text-2xl font-bold text-slate-800">{{ ronda.nombre }}</h1>
+    <p class="text-slate-400 text-sm mt-0.5"><i class="bi bi-calendar3 me-1"></i>{{ ronda.fecha }}</p>
   </div>
-  <div class="d-flex gap-2">
-    <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary">
-      <i class="bi bi-arrow-left me-1"></i>Historial
+  <div class="flex gap-2">
+    <a href="{{ url_for('index') }}"
+       class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border border-slate-200 text-slate-600 hover:bg-slate-100 transition">
+      <i class="bi bi-arrow-left"></i> Historial
     </a>
-    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-      <i class="bi bi-trash me-1"></i>Eliminar
+    <button data-modal="modalEliminar"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border border-rose-200 text-rose-500 hover:bg-rose-50 transition">
+      <i class="bi bi-trash"></i> Eliminar
     </button>
   </div>
 </div>
 
-<!-- Totales globales -->
+<!-- Stat cards -->
 {% set ganancia_neta = ronda.total_ganado - ronda.total_inicial %}
-<div class="row g-3 mb-4">
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Total ingresado</div>
-      <div class="value">${{ '{:,.0f}'.format(ronda.total_inicial) }}</div>
-    </div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center">
+    <p class="text-xs text-slate-500 mb-1">Total invertido</p>
+    <p class="text-xl font-bold text-slate-800">${{ '{:,.0f}'.format(ronda.total_inicial) }}</p>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Total ganado</div>
-      <div class="value {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
-        ${{ '{:,.0f}'.format(ronda.total_ganado) }}
-      </div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center">
+    <p class="text-xs text-slate-500 mb-1">Valor final</p>
+    <p class="text-xl font-bold {% if ganancia_neta >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+      ${{ '{:,.0f}'.format(ronda.total_ganado) }}
+    </p>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Ganancia neta</div>
-      <div class="value {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
-        {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_neta) }}
-      </div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center">
+    <p class="text-xs text-slate-500 mb-1">Ganancia neta</p>
+    <p class="text-xl font-bold {% if ganancia_neta >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+      {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_neta) }}
+    </p>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Participantes</div>
-      <div class="value">{{ tabla|length }}</div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-4 text-center">
+    <p class="text-xs text-slate-500 mb-1">Participantes</p>
+    <p class="text-xl font-bold text-slate-800">{{ tabla|length }}</p>
   </div>
 </div>
 
-<!-- Tabla detalle -->
-<div class="card">
-  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-    <span><i class="bi bi-table me-2"></i>Distribución por persona</span>
-    <button class="btn btn-sm btn-outline-light" onclick="window.print()">
-      <i class="bi bi-printer me-1"></i>Imprimir
+<!-- Tabla -->
+<div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+  <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+    <h2 class="font-semibold text-slate-700 flex items-center gap-2">
+      <i class="bi bi-table text-indigo-500"></i> Distribución por persona
+    </h2>
+    <button onclick="window.print()"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-slate-200 text-slate-500 hover:bg-slate-50 transition">
+      <i class="bi bi-printer"></i> Imprimir
     </button>
   </div>
-  <div class="table-responsive">
-    <table class="table table-hover mb-0">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
       <thead>
-        <tr>
-          <th>Persona</th>
-          <th class="text-center">% Participación</th>
-          <th class="text-end">Capital dado</th>
-          <th class="text-end">Dinero ganado</th>
-          <th class="text-end">Valor final</th>
-          <th class="text-end">Ganancia</th>
+        <tr class="bg-slate-900 text-white text-xs uppercase tracking-wide">
+          <th class="px-5 py-3 text-left">Persona</th>
+          <th class="px-5 py-3 text-center">% Participación</th>
+          <th class="px-5 py-3 text-right">Capital dado</th>
+          <th class="px-5 py-3 text-right">Dinero ganado</th>
+          <th class="px-5 py-3 text-right">Valor final</th>
+          <th class="px-5 py-3 text-right">Ganancia</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-slate-100">
         {% for row in tabla %}
         {% set ganancia_persona = row.dinero_ganado %}
-        <tr>
-          <td class="fw-semibold">{{ row.nombre }}</td>
-          <td class="text-center">
-            <span class="badge bg-dark badge-pct">{{ row.porcentaje }}%</span>
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-5 py-3.5 font-semibold text-slate-800">{{ row.nombre }}</td>
+          <td class="px-5 py-3.5 text-center">
+            <span class="inline-block bg-slate-100 text-slate-700 text-xs font-medium px-2.5 py-1 rounded-full">
+              {{ row.porcentaje }}%
+            </span>
           </td>
-          <td class="text-end">${{ '{:,.0f}'.format(row.capital_dado) }}</td>
-          <td class="text-end {% if ganancia_persona >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
-            ${{ '{:,.0f}'.format(row.dinero_ganado) }}
+          <td class="px-5 py-3.5 text-right text-slate-700">${{ '{:,.0f}'.format(row.capital_dado) }}</td>
+          <td class="px-5 py-3.5 text-right font-medium {% if ganancia_persona >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+            {% if ganancia_persona >= 0 %}+{% endif %}${{ '{:,.0f}'.format(row.dinero_ganado) }}
           </td>
-          <td class="text-end fw-bold">${{ '{:,.0f}'.format(row.total_queda) }}</td>
-          <td class="text-end {% if ganancia_persona >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+          <td class="px-5 py-3.5 text-right font-bold text-slate-800">${{ '{:,.0f}'.format(row.total_queda) }}</td>
+          <td class="px-5 py-3.5 text-right font-medium {% if ganancia_persona >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
             {% if ganancia_persona >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_persona) }}
           </td>
         </tr>
         {% endfor %}
       </tbody>
-      <tfoot class="table-dark">
-        <tr>
-          <th>Total</th>
-          <td class="text-center">
-            <span class="badge bg-secondary">{{ tabla|sum(attribute='porcentaje') }}%</span>
+      <tfoot>
+        <tr class="bg-slate-900 text-white font-semibold text-sm">
+          <td class="px-5 py-3">Total</td>
+          <td class="px-5 py-3 text-center">
+            <span class="text-xs bg-slate-700 px-2 py-1 rounded-full">{{ tabla|sum(attribute='porcentaje') }}%</span>
           </td>
-          <th class="text-end">${{ '{:,.0f}'.format(tabla|sum(attribute='capital_dado')) }}</th>
-          <th class="text-end">${{ '{:,.0f}'.format(tabla|sum(attribute='dinero_ganado')) }}</th>
-          <th class="text-end">${{ '{:,.0f}'.format(tabla|sum(attribute='total_queda')) }}</th>
-          <th class="text-end {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+          <td class="px-5 py-3 text-right">${{ '{:,.0f}'.format(tabla|sum(attribute='capital_dado')) }}</td>
+          <td class="px-5 py-3 text-right {% if ganancia_neta >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+            {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(tabla|sum(attribute='dinero_ganado')) }}
+          </td>
+          <td class="px-5 py-3 text-right">${{ '{:,.0f}'.format(tabla|sum(attribute='total_queda')) }}</td>
+          <td class="px-5 py-3 text-right {% if ganancia_neta >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
             {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(tabla|sum(attribute='ganancia')) }}
-          </th>
+          </td>
         </tr>
       </tfoot>
     </table>
@@ -108,35 +109,57 @@
 </div>
 
 <!-- Modal eliminar -->
-<div class="modal fade" id="modalEliminar" tabindex="-1">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h6 class="modal-title">Eliminar ronda</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="{{ url_for('eliminar_ronda', id=ronda.id) }}" method="post">
-        <div class="modal-body">
-          {% if error_clave %}
-          <div class="alert alert-danger py-2 small">Contraseña incorrecta.</div>
-          {% endif %}
-          <label class="form-label small">Ingresa la contraseña para eliminar</label>
-          <input type="password" name="clave" class="form-control" placeholder="Contraseña" required autofocus>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-        </div>
-      </form>
+<div id="modalEliminar" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
+    <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+      <h3 class="font-semibold text-slate-800">Eliminar ronda</h3>
+      <button onclick="closeModal('modalEliminar')" class="text-slate-400 hover:text-slate-600">
+        <i class="bi bi-x-lg"></i>
+      </button>
     </div>
+    <form action="{{ url_for('eliminar_ronda', id=ronda.id) }}" method="post">
+      <div class="px-6 py-5">
+        {% if error_clave %}
+        <div class="mb-4 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+          Contraseña incorrecta.
+        </div>
+        {% endif %}
+        <label class="block text-sm text-slate-600 mb-2">Ingresa la contraseña para eliminar</label>
+        <input type="password" name="clave" placeholder="Contraseña"
+               class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+               required autofocus>
+      </div>
+      <div class="px-6 pb-5 flex gap-2 justify-end">
+        <button type="button" onclick="closeModal('modalEliminar')"
+                class="px-4 py-2 rounded-xl text-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="px-4 py-2 rounded-xl text-sm bg-rose-500 text-white hover:bg-rose-600 transition font-medium">
+          Eliminar
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
 {% if error_clave %}
+<script>document.addEventListener('DOMContentLoaded', () => openModal('modalEliminar'));</script>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+  function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+  function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => openModal(btn.dataset.modal));
+  });
+  document.querySelectorAll('.modal-backdrop').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+  });
+  document.getElementById('modalEliminar').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('modalEliminar');
   });
 </script>
-{% endif %}
 {% endblock %}

@@ -2,165 +2,273 @@
 {% block title %}Estadísticas — Kuazimides{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h4 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Estadísticas</h4>
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+    <i class="bi bi-graph-up-arrow text-indigo-500"></i> Estadísticas
+  </h1>
 </div>
 
 {% if not globales or not globales.total_rondas %}
-<div class="card">
-  <div class="card-body text-center py-5 text-muted">
-    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-    No hay datos todavía. <a href="{{ url_for('nueva_ronda') }}">Crea una ronda.</a>
-  </div>
+<div class="bg-white rounded-2xl shadow-sm p-12 text-center text-slate-400">
+  <i class="bi bi-inbox text-5xl block mb-3"></i>
+  <p>No hay datos todavía. <a href="{{ url_for('nueva_ronda') }}" class="text-indigo-500 hover:underline">Crea una ronda.</a></p>
 </div>
 {% else %}
 
-{% set capital      = globales.capital_total or 0 %}
-{% set ganancia     = globales.ganancia_total or 0 %}
-{% set valor_final  = globales.valor_final_total or 0 %}
-{% set roi_global   = (ganancia / capital * 100) if capital > 0 else 0 %}
+{% set capital     = globales.capital_total or 0 %}
+{% set ganancia    = globales.ganancia_total or 0 %}
+{% set valor_final = globales.valor_final_total or 0 %}
+{% set roi_global  = (ganancia / capital * 100) if capital > 0 else 0 %}
 
-<!-- Globales -->
-<h6 class="text-muted text-uppercase fw-bold mb-3" style="font-size:.75rem;letter-spacing:.08em">
-  Totales globales
-</h6>
-<div class="row g-3 mb-4">
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Rondas jugadas</div>
-      <div class="value">{{ globales.total_rondas }}</div>
-    </div>
+<!-- Sección: Totales globales -->
+<p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Totales globales</p>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center">
+    <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Rondas jugadas</p>
+    <p class="text-3xl font-bold text-slate-800">{{ globales.total_rondas }}</p>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Capital total invertido</div>
-      <div class="value">${{ '{:,.0f}'.format(capital) }}</div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center">
+    <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Capital invertido</p>
+    <p class="text-2xl font-bold text-slate-800">${{ '{:,.0f}'.format(capital) }}</p>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Ganancia neta total</div>
-      <div class="value {% if ganancia >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
-        {% if ganancia >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia) }}
-      </div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center">
+    <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">Ganancia neta</p>
+    <p class="text-2xl font-bold {% if ganancia >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+      {% if ganancia >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia) }}
+    </p>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Valor final total</div>
-      <div class="value">${{ '{:,.0f}'.format(valor_final) }}</div>
-    </div>
+  <div class="bg-white rounded-2xl shadow-sm p-5 text-center">
+    <p class="text-xs text-slate-500 uppercase tracking-wide mb-1">ROI global</p>
+    <p class="text-2xl font-bold {% if roi_global >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+      {% if roi_global >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_global) }}%
+    </p>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">ROI global</div>
-      <div class="value {% if roi_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
-        {% if roi_global >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_global) }}%
-      </div>
-    </div>
-  </div>
+
   {% if mejor_ronda %}
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Mejor ronda</div>
-      <div class="value profit-positive" style="font-size:1rem">{{ mejor_ronda.nombre }}</div>
-      <div class="small profit-positive">+${{ '{:,.0f}'.format(mejor_ronda.ganancia) }}</div>
-    </div>
+  <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 text-center col-span-1">
+    <p class="text-xs text-emerald-600 uppercase tracking-wide mb-1 font-semibold">Mejor ronda</p>
+    <p class="font-bold text-slate-800 truncate">{{ mejor_ronda.nombre }}</p>
+    <p class="text-emerald-600 font-bold text-lg">+${{ '{:,.0f}'.format(mejor_ronda.ganancia) }}</p>
   </div>
   {% endif %}
   {% if peor_ronda %}
-  <div class="col-6 col-md-3">
-    <div class="stat-box">
-      <div class="small text-muted">Peor ronda</div>
-      <div class="value profit-negative" style="font-size:1rem">{{ peor_ronda.nombre }}</div>
-      <div class="small profit-negative">${{ '{:,.0f}'.format(peor_ronda.ganancia) }}</div>
-    </div>
+  <div class="bg-rose-50 border border-rose-100 rounded-2xl p-5 text-center col-span-1">
+    <p class="text-xs text-rose-500 uppercase tracking-wide mb-1 font-semibold">Peor ronda</p>
+    <p class="font-bold text-slate-800 truncate">{{ peor_ronda.nombre }}</p>
+    <p class="text-rose-500 font-bold text-lg">${{ '{:,.0f}'.format(peor_ronda.ganancia) }}</p>
   </div>
   {% endif %}
 </div>
 
-<!-- Por persona -->
-<h6 class="text-muted text-uppercase fw-bold mb-3" style="font-size:.75rem;letter-spacing:.08em">
-  Estadísticas por persona
-</h6>
-<div class="row g-3">
+<!-- Gráfica global: comparación entre personas -->
+<div class="bg-white rounded-2xl shadow-sm p-6 mb-8">
+  <h2 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+    <i class="bi bi-bar-chart-fill text-indigo-500"></i> Comparación de ganancias netas
+  </h2>
+  <canvas id="chartGlobal" height="90"></canvas>
+</div>
+
+<!-- Sección: Por persona -->
+<p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Por persona</p>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   {% for p in por_persona %}
   {% set roi_p = (p.ganancia_neta / p.capital * 100) if p.capital > 0 else 0 %}
   {% set win_rate = (p.rondas_ganadas / p.rondas * 100) if p.rondas > 0 else 0 %}
-  <div class="col-12 col-md-6">
-    <div class="card h-100">
-      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <span class="fw-bold text-capitalize">{{ p.nombre }}</span>
-        <span class="badge bg-secondary">{{ p.rondas }} ronda{{ 's' if p.rondas != 1 }}</span>
-      </div>
-      <div class="card-body">
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <div class="stat-box">
-              <div class="small text-muted">Capital aportado</div>
-              <div class="value" style="font-size:1.1rem">${{ '{:,.0f}'.format(p.capital) }}</div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="stat-box">
-              <div class="small text-muted">Ganancia neta</div>
-              <div class="value {% if p.ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}" style="font-size:1.1rem">
-                {% if p.ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.ganancia_neta) }}
-              </div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="stat-box">
-              <div class="small text-muted">Valor final</div>
-              <div class="value" style="font-size:1.1rem">${{ '{:,.0f}'.format(p.valor_final) }}</div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="stat-box">
-              <div class="small text-muted">ROI</div>
-              <div class="value {% if roi_p >= 0 %}profit-positive{% else %}profit-negative{% endif %}" style="font-size:1.1rem">
-                {% if roi_p >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_p) }}%
-              </div>
-            </div>
-          </div>
-        </div>
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <!-- Card header -->
+    <div class="bg-slate-900 px-6 py-4 flex items-center justify-between">
+      <span class="text-white font-bold capitalize text-base">{{ p.nombre }}</span>
+      <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">
+        {{ p.rondas }} ronda{{ 's' if p.rondas != 1 }}
+      </span>
+    </div>
 
-        <div class="mb-2">
-          <div class="d-flex justify-content-between mb-1 small">
-            <span class="text-success">Ganadas: {{ p.rondas_ganadas }}</span>
-            <span class="text-danger">Perdidas: {{ p.rondas_perdidas }}</span>
-            <span class="text-muted">Win rate: {{ '{:.0f}'.format(win_rate) }}%</span>
-          </div>
-          <div class="progress" style="height:8px">
-            <div class="progress-bar bg-success" style="width:{{ win_rate }}%"></div>
-            <div class="progress-bar bg-danger" style="width:{{ 100 - win_rate }}%"></div>
-          </div>
+    <div class="p-5">
+      <!-- Stat mini-grid -->
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-slate-50 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-0.5">Capital aportado</p>
+          <p class="font-bold text-slate-800">${{ '{:,.0f}'.format(p.capital) }}</p>
         </div>
-
-        <div class="row g-2 mt-1">
-          <div class="col-6">
-            <div class="small text-muted">Mejor ronda</div>
-            <div class="small profit-positive fw-bold">
-              {% if p.mejor_ronda >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.mejor_ronda) }}
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="small text-muted">Peor ronda</div>
-            <div class="small profit-negative fw-bold">
-              ${{ '{:,.0f}'.format(p.peor_ronda) }}
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="small text-muted">Promedio por ronda</div>
-            <div class="small {% if p.promedio_ronda >= 0 %}profit-positive{% else %}profit-negative{% endif %} fw-bold">
-              {% if p.promedio_ronda >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.promedio_ronda) }}
-            </div>
-          </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-0.5">Ganancia neta</p>
+          <p class="font-bold {% if p.ganancia_neta >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+            {% if p.ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.ganancia_neta) }}
+          </p>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-0.5">Valor final</p>
+          <p class="font-bold text-slate-800">${{ '{:,.0f}'.format(p.valor_final) }}</p>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-0.5">ROI</p>
+          <p class="font-bold {% if roi_p >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+            {% if roi_p >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_p) }}%
+          </p>
         </div>
       </div>
+
+      <!-- Win rate bar -->
+      <div class="mb-4">
+        <div class="flex justify-between text-xs mb-1.5">
+          <span class="text-emerald-600 font-medium">{{ p.rondas_ganadas }} ganadas</span>
+          <span class="text-slate-400">Win rate {{ '{:.0f}'.format(win_rate) }}%</span>
+          <span class="text-rose-500 font-medium">{{ p.rondas_perdidas }} perdidas</span>
+        </div>
+        <div class="flex rounded-full overflow-hidden h-2">
+          <div class="bg-emerald-400 transition-all" style="width:{{ win_rate }}%"></div>
+          <div class="bg-rose-400 flex-1"></div>
+        </div>
+      </div>
+
+      <!-- Min/max/avg -->
+      <div class="grid grid-cols-3 gap-2 text-center mb-5">
+        <div>
+          <p class="text-xs text-slate-400">Mejor</p>
+          <p class="text-sm font-semibold text-emerald-600">+${{ '{:,.0f}'.format(p.mejor_ronda) }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400">Promedio</p>
+          <p class="text-sm font-semibold {% if p.promedio_ronda >= 0 %}text-slate-700{% else %}text-rose-500{% endif %}">
+            {% if p.promedio_ronda >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.promedio_ronda) }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400">Peor</p>
+          <p class="text-sm font-semibold text-rose-500">${{ '{:,.0f}'.format(p.peor_ronda) }}</p>
+        </div>
+      </div>
+
+      <!-- Gráfica individual -->
+      <canvas id="chart-{{ p.nombre | replace(' ', '-') }}" height="130"></canvas>
     </div>
   </div>
   {% endfor %}
 </div>
+
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const chartData = {{ chart_data | safe }};
+
+const COLORS = [
+  '#6366f1','#10b981','#f59e0b','#f43f5e','#3b82f6','#8b5cf6','#ec4899','#14b8a6'
+];
+
+Chart.defaults.font.family = 'system-ui, sans-serif';
+Chart.defaults.color = '#64748b';
+
+// Gráfica global: barras comparando ganancia neta por persona
+const personas = Object.keys(chartData);
+const gananciasGlobales = personas.map(p => {
+  const arr = chartData[p].ganancias;
+  return arr.reduce((a, b) => a + b, 0);
+});
+
+new Chart(document.getElementById('chartGlobal'), {
+  type: 'bar',
+  data: {
+    labels: personas.map(p => p.charAt(0).toUpperCase() + p.slice(1)),
+    datasets: [{
+      label: 'Ganancia neta total',
+      data: gananciasGlobales,
+      backgroundColor: personas.map((_, i) => COLORS[i % COLORS.length] + 'cc'),
+      borderColor: personas.map((_, i) => COLORS[i % COLORS.length]),
+      borderWidth: 2,
+      borderRadius: 8,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ' $' + ctx.raw.toLocaleString('es-CO', {maximumFractionDigits: 0})
+        }
+      }
+    },
+    scales: {
+      y: {
+        grid: { color: '#f1f5f9' },
+        ticks: {
+          callback: v => '$' + v.toLocaleString('es-CO', {maximumFractionDigits: 0})
+        }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Gráficas individuales: barras + línea acumulado
+personas.forEach((persona, idx) => {
+  const data = chartData[persona];
+  const color = COLORS[idx % COLORS.length];
+  const canvasId = 'chart-' + persona.replace(/ /g, '-');
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  new Chart(canvas, {
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Ganancia por ronda',
+          data: data.ganancias,
+          backgroundColor: data.ganancias.map(v => v >= 0 ? '#10b98155' : '#f43f5e55'),
+          borderColor: data.ganancias.map(v => v >= 0 ? '#10b981' : '#f43f5e'),
+          borderWidth: 2,
+          borderRadius: 6,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Acumulado',
+          data: data.acumulado,
+          borderColor: color,
+          backgroundColor: color + '22',
+          borderWidth: 2.5,
+          pointBackgroundColor: color,
+          pointRadius: 4,
+          tension: 0.35,
+          fill: true,
+          yAxisID: 'y',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { boxWidth: 12, font: { size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': $' + ctx.raw.toLocaleString('es-CO', {maximumFractionDigits: 0})
+          }
+        }
+      },
+      scales: {
+        y: {
+          grid: { color: '#f1f5f9' },
+          ticks: {
+            callback: v => '$' + v.toLocaleString('es-CO', {maximumFractionDigits: 0}),
+            font: { size: 10 }
+          }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 10 } }
+        }
+      }
+    }
+  });
+});
+</script>
 {% endblock %}

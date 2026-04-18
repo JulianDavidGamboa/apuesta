@@ -1,65 +1,72 @@
 {% extends 'base.html' %}
-{% block title %}Historial — Dinero{% endblock %}
+{% block title %}Historial — Kuazimides{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h4 class="mb-0"><i class="bi bi-clock-history me-2"></i>Historial de rondas</h4>
-  <div class="d-flex gap-2">
-    <a href="{{ url_for('exportar_excel') }}" class="btn btn-success btn-sm">
-      <i class="bi bi-file-earmark-excel me-1"></i>Descargar Excel
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+    <i class="bi bi-clock-history text-indigo-500"></i> Historial de rondas
+  </h1>
+  <div class="flex gap-2">
+    <a href="{{ url_for('exportar_excel') }}"
+       class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition font-medium">
+      <i class="bi bi-file-earmark-excel"></i> Excel
     </a>
-    <a href="{{ url_for('nueva_ronda') }}" class="btn btn-success">
-      <i class="bi bi-plus-lg me-1"></i>Nueva ronda
+    <a href="{{ url_for('nueva_ronda') }}"
+       class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-500 transition font-medium">
+      <i class="bi bi-plus-lg"></i> Nueva ronda
     </a>
   </div>
 </div>
 
 {% if not rondas %}
-<div class="card">
-  <div class="card-body text-center py-5 text-muted">
-    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-    No hay rondas aún. <a href="{{ url_for('nueva_ronda') }}">Crea la primera.</a>
-  </div>
+<div class="bg-white rounded-2xl shadow-sm p-12 text-center text-slate-400">
+  <i class="bi bi-inbox text-5xl block mb-3"></i>
+  <p>No hay rondas aún. <a href="{{ url_for('nueva_ronda') }}" class="text-indigo-500 hover:underline">Crea la primera.</a></p>
 </div>
 {% else %}
-<div class="row g-3">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
   {% for r in rondas %}
   {% set ganancia = r.total_ganado - r.total_inicial %}
-  <div class="col-12 col-md-6 col-lg-4">
-    <div class="card h-100">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <h6 class="card-title mb-0 fw-bold">{{ r.nombre }}</h6>
-          <span class="badge bg-secondary">{{ r.fecha }}</span>
+  <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+    <!-- Card header -->
+    <div class="bg-slate-900 px-5 py-4 flex items-start justify-between">
+      <div>
+        <h2 class="text-white font-semibold text-base">{{ r.nombre }}</h2>
+        <p class="text-slate-400 text-xs mt-0.5"><i class="bi bi-calendar3 me-1"></i>{{ r.fecha }}</p>
+      </div>
+      <span class="text-xs px-2 py-1 rounded-full {% if ganancia >= 0 %}bg-emerald-500/20 text-emerald-400{% else %}bg-rose-500/20 text-rose-400{% endif %} font-medium whitespace-nowrap">
+        {% if ganancia >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia) }}
+      </span>
+    </div>
+
+    <!-- Card body -->
+    <div class="px-5 py-4 flex-1">
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="bg-slate-50 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-0.5">Total invertido</p>
+          <p class="text-slate-800 font-bold">${{ '{:,.0f}'.format(r.total_inicial) }}</p>
         </div>
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <div class="stat-box">
-              <div class="small text-muted">Total inicial</div>
-              <div class="value">${{ '{:,.0f}'.format(r.total_inicial) }}</div>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="stat-box">
-              <div class="small text-muted">Total ganado</div>
-              <div class="value {% if ganancia >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
-                ${{ '{:,.0f}'.format(r.total_ganado) }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="d-flex gap-2">
-          <a href="{{ url_for('ver_ronda', id=r.id) }}" class="btn btn-sm btn-dark flex-fill">
-            <i class="bi bi-table me-1"></i>Ver tabla
-          </a>
-          <form action="{{ url_for('eliminar_ronda', id=r.id) }}" method="post"
-                onsubmit="return confirm('¿Eliminar esta ronda?')">
-            <button class="btn btn-sm btn-outline-danger">
-              <i class="bi bi-trash"></i>
-            </button>
-          </form>
+        <div class="bg-slate-50 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-0.5">Valor final</p>
+          <p class="font-bold {% if ganancia >= 0 %}text-emerald-600{% else %}text-rose-500{% endif %}">
+            ${{ '{:,.0f}'.format(r.total_ganado) }}
+          </p>
         </div>
       </div>
+    </div>
+
+    <!-- Card footer -->
+    <div class="px-5 pb-4 flex gap-2">
+      <a href="{{ url_for('ver_ronda', id=r.id) }}"
+         class="flex-1 text-center py-2 rounded-xl text-sm bg-slate-900 text-white hover:bg-slate-700 transition font-medium">
+        <i class="bi bi-table me-1"></i>Ver tabla
+      </a>
+      <form action="{{ url_for('eliminar_ronda', id=r.id) }}" method="post">
+        <button onclick="event.preventDefault(); window.location='{{ url_for('ver_ronda', id=r.id) }}'"
+                class="px-3 py-2 rounded-xl text-sm border border-rose-200 text-rose-500 hover:bg-rose-50 transition">
+          <i class="bi bi-trash"></i>
+        </button>
+      </form>
     </div>
   </div>
   {% endfor %}
