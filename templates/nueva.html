@@ -175,16 +175,17 @@ function updatePreview() {
 
     if (!name && aporte === 0) return;
     hasRows = true;
-    const cap   = aporte;
-    const gan   = totalGanado * pct / 100;
-    const total = cap + gan;
-    const profitClass = gan >= 0 ? 'profit-positive' : 'profit-negative';
+    const cap        = aporte;
+    const totalPool  = totalGanado * pct / 100;
+    const ganancia   = totalPool - cap;
+    const total      = cap + ganancia; // = totalPool
+    const profitClass = ganancia >= 0 ? 'profit-positive' : 'profit-negative';
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${name || '—'}</td>
       <td>${pct.toFixed(1)}%</td>
       <td>${fmt(cap)}</td>
-      <td class="${profitClass}">${fmt(gan)}</td>
+      <td class="${profitClass}">${fmt(ganancia)}</td>
       <td><strong>${fmt(total)}</strong></td>`;
     tbody.appendChild(tr);
   });

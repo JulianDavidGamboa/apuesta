@@ -156,15 +156,16 @@ def calcular_tabla(ronda, participantes):
     tabla = []
     for p_ in participantes:
         capital = ronda['total_inicial'] * p_['porcentaje'] / 100
-        ganado = ronda['total_ganado'] * p_['porcentaje'] / 100
-        total_queda = capital + ganado
+        total_pool = ronda['total_ganado'] * p_['porcentaje'] / 100
+        ganancia_neta = total_pool - capital
+        total_queda = capital + ganancia_neta  # = total_pool
         tabla.append({
             'nombre': p_['nombre'],
             'porcentaje': p_['porcentaje'],
             'capital_dado': capital,
-            'dinero_ganado': ganado,
+            'dinero_ganado': ganancia_neta,
             'total_queda': total_queda,
-            'ganancia': ganado,
+            'ganancia': ganancia_neta,
         })
     return tabla
 
