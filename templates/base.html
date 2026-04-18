@@ -22,8 +22,10 @@
 <body>
 <nav class="navbar navbar-dark bg-dark mb-4">
   <div class="container">
-    <a class="navbar-brand" href="{{ url_for('index') }}">
-      <i class="bi bi-cash-coin me-1"></i> Kuazimides
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
+      <img src="{{ url_for('static', filename='kuaza.png') }}" alt="logo"
+           style="width:32px;height:32px;object-fit:cover;border-radius:50%;">
+      Kuazimides
     </a>
     <div class="d-flex gap-2">
       <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-light">
