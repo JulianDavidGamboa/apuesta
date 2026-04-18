@@ -339,7 +339,7 @@ def estadisticas():
             (r.total_ganado - r.total_inicial) * p.porcentaje / 100 AS ganancia
         FROM participantes p
         JOIN rondas r ON p.ronda_id = r.id
-        ORDER BY LOWER(TRIM(p.nombre)), r.fecha ASC
+        ORDER BY LOWER(TRIM(p.nombre)), r.id ASC
     ''')
 
     chart_data = {}
