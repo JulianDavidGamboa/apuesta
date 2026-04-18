@@ -11,12 +11,9 @@
     <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary">
       <i class="bi bi-arrow-left me-1"></i>Historial
     </a>
-    <form action="{{ url_for('eliminar_ronda', id=ronda.id) }}" method="post"
-          onsubmit="return confirm('¿Eliminar esta ronda?')">
-      <button class="btn btn-sm btn-outline-danger">
-        <i class="bi bi-trash me-1"></i>Eliminar
-      </button>
-    </form>
+    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar">
+      <i class="bi bi-trash me-1"></i>Eliminar
+    </button>
   </div>
 </div>
 
@@ -109,4 +106,37 @@
     </table>
   </div>
 </div>
+
+<!-- Modal eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Eliminar ronda</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{{ url_for('eliminar_ronda', id=ronda.id) }}" method="post">
+        <div class="modal-body">
+          {% if error_clave %}
+          <div class="alert alert-danger py-2 small">Contraseña incorrecta.</div>
+          {% endif %}
+          <label class="form-label small">Ingresa la contraseña para eliminar</label>
+          <input type="password" name="clave" class="form-control" placeholder="Contraseña" required autofocus>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if error_clave %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+  });
+</script>
+{% endif %}
 {% endblock %}

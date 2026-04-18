@@ -233,6 +233,13 @@ def ver_ronda(id):
 
 @app.route('/ronda/<int:id>/eliminar', methods=['POST'])
 def eliminar_ronda(id):
+    clave = request.form.get('clave', '')
+    clave_correcta = os.environ.get('DELETE_PASSWORD', '')
+    if not clave_correcta or clave != clave_correcta:
+        ronda = query(_sql('SELECT * FROM rondas WHERE id = ?'), (id,), one=True)
+        participantes = query(_sql('SELECT * FROM participantes WHERE ronda_id = ? ORDER BY porcentaje DESC'), (id,))
+        tabla = calcular_tabla(ronda, participantes)
+        return render_template('ronda.html', ronda=ronda, tabla=tabla, error_clave=True)
     execute_many([
         (_sql('DELETE FROM participantes WHERE ronda_id = ?'), (id,)),
         (_sql('DELETE FROM rondas WHERE id = ?'), (id,)),
