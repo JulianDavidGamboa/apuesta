@@ -114,7 +114,7 @@ def execute(sql, params=()):
     if USE_PG:
         cur = conn.cursor()
         cur.execute(sql, params)
-        lastrowid = cur.fetchone()[0] if 'RETURNING' in sql else None
+        lastrowid = cur.fetchone()['id'] if 'RETURNING' in sql else None
         conn.commit()
         cur.close()
         conn.close()
