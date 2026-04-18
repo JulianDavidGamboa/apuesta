@@ -244,7 +244,7 @@ def eliminar_ronda(id):
 def resumen():
     datos = query('''
         SELECT
-            p.nombre,
+            LOWER(TRIM(p.nombre)) AS nombre,
             COUNT(DISTINCT p.ronda_id) AS rondas,
             SUM(r.total_inicial * p.porcentaje / 100) AS total_capital,
             SUM(r.total_ganado  * p.porcentaje / 100) AS total_ganado,
@@ -318,7 +318,7 @@ def exportar_excel():
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal='center')
     resumen_data = query('''
-        SELECT p.nombre, COUNT(DISTINCT p.ronda_id) AS rondas,
+        SELECT LOWER(TRIM(p.nombre)) AS nombre, COUNT(DISTINCT p.ronda_id) AS rondas,
                SUM(r.total_inicial * p.porcentaje / 100) AS total_capital,
                SUM(r.total_ganado  * p.porcentaje / 100) AS total_ganado,
                SUM((r.total_inicial + r.total_ganado) * p.porcentaje / 100) AS total_recibido
