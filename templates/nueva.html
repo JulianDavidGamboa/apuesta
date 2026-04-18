@@ -97,13 +97,70 @@
 {% endblock %}
 
 {% block scripts %}
-<datalist id="personas-list">
-  {% for p in personas %}
-  <option value="{{ p }}">
-  {% endfor %}
-</datalist>
+<style>
+.ac-dropdown {
+  position: absolute; z-index: 100; background: white;
+  border: 1px solid #e2e8f0; border-radius: 0.75rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10); max-height: 200px;
+  overflow-y: auto; min-width: 180px;
+}
+.ac-item {
+  padding: 0.5rem 1rem; font-size: 0.875rem; cursor: pointer;
+  color: #1e293b; text-transform: capitalize;
+}
+.ac-item:hover, .ac-item.active { background: #6366f1; color: white; }
+</style>
 <script>
+const PERSONAS = {{ personas | tojson }};
 let rowCount = 0;
+let activeDropdown = null;
+
+function showDropdown(input, filtered) {
+  closeDropdown();
+  if (!filtered.length) return;
+  const dd = document.createElement('div');
+  dd.className = 'ac-dropdown';
+  const rect = input.getBoundingClientRect();
+  dd.style.width = input.offsetWidth + 'px';
+  filtered.forEach(name => {
+    const item = document.createElement('div');
+    item.className = 'ac-item';
+    item.textContent = name;
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      input.value = name;
+      input.dispatchEvent(new Event('input'));
+      closeDropdown();
+    });
+    dd.appendChild(item);
+  });
+  input.parentElement.style.position = 'relative';
+  input.insertAdjacentElement('afterend', dd);
+  activeDropdown = dd;
+}
+
+function closeDropdown() {
+  if (activeDropdown) { activeDropdown.remove(); activeDropdown = null; }
+}
+
+function bindAutocomplete(input) {
+  input.addEventListener('focus', () => {
+    const val = input.value.toLowerCase();
+    const filtered = PERSONAS.filter(p => p.includes(val));
+    showDropdown(input, filtered);
+  });
+  input.addEventListener('input', () => {
+    const val = input.value.toLowerCase();
+    const filtered = PERSONAS.filter(p => p.includes(val));
+    showDropdown(input, filtered);
+    updatePreview();
+  });
+  input.addEventListener('blur', () => setTimeout(closeDropdown, 150));
+}
+
+document.addEventListener('click', e => {
+  if (activeDropdown && !activeDropdown.contains(e.target)) closeDropdown();
+});
 
 function fmt(n) {
   return '$' + Number(n).toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 0});
@@ -116,9 +173,11 @@ function addRow(nombre='', aporte='') {
   div.className = 'flex items-center gap-2 participant-row';
   div.dataset.id = id;
   div.innerHTML = `
-    <input type="text" name="nombre_p" list="personas-list"
-           class="flex-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-           placeholder="Nombre" value="${nombre}" required oninput="updatePreview()">
+    <div class="flex-1" style="position:relative">
+      <input type="text" name="nombre_p"
+             class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+             placeholder="Nombre" value="${nombre}" required autocomplete="off">
+    </div>
     <div class="flex items-center border border-slate-200 rounded-xl overflow-hidden" style="width:150px">
       <span class="px-3 py-2.5 text-slate-400 text-sm bg-slate-50 border-r border-slate-200">$</span>
       <input type="number"
@@ -131,6 +190,7 @@ function addRow(nombre='', aporte='') {
       <i class="bi bi-x-lg text-sm"></i>
     </button>`;
   document.getElementById('participantes-list').appendChild(div);
+  bindAutocomplete(div.querySelector('input[name="nombre_p"]'));
   updatePreview();
 }
 
