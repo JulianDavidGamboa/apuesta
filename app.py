@@ -327,7 +327,7 @@ def estadisticas():
         FROM participantes p
         JOIN rondas r ON p.ronda_id = r.id
         GROUP BY LOWER(TRIM(p.nombre))
-        ORDER BY ganancia_neta DESC
+        ORDER BY MAX(r.fecha) DESC
     ''')
 
     # Datos para gráficas: ganancia por ronda por persona
