@@ -42,10 +42,6 @@
            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
           <i class="bi bi-clock-history"></i> Historial
         </a>
-        <a href="{{ url_for('nueva_ronda') }}"
-           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-500 transition font-medium">
-          <i class="bi bi-plus-lg"></i> Nueva ronda
-        </a>
         <a href="{{ url_for('resumen') }}"
            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
           <i class="bi bi-bar-chart"></i> Resumen
@@ -57,6 +53,10 @@
         <a href="{{ url_for('calendario') }}"
            class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
           <i class="bi bi-calendar3"></i> Calendario
+        </a>
+        <a href="{{ url_for('nueva_ronda') }}"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-500 transition font-medium">
+          <i class="bi bi-plus-lg"></i> Nueva ronda
         </a>
       </div>
 
@@ -73,9 +73,6 @@
       <a href="{{ url_for('index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
         <i class="bi bi-clock-history"></i> Historial
       </a>
-      <a href="{{ url_for('nueva_ronda') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium">
-        <i class="bi bi-plus-lg"></i> Nueva ronda
-      </a>
       <a href="{{ url_for('resumen') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
         <i class="bi bi-bar-chart"></i> Resumen
       </a>
@@ -84,6 +81,9 @@
       </a>
       <a href="{{ url_for('calendario') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
         <i class="bi bi-calendar3"></i> Calendario
+      </a>
+      <a href="{{ url_for('nueva_ronda') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium">
+        <i class="bi bi-plus-lg"></i> Nueva ronda
       </a>
     </div>
   </div>
