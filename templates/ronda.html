@@ -71,7 +71,6 @@
           <th class="text-end">Dinero ganado</th>
           <th class="text-end">Total que queda</th>
           <th class="text-end">Ganancia</th>
-          <th class="text-end">Total inicial</th>
         </tr>
       </thead>
       <tbody>
@@ -90,7 +89,6 @@
           <td class="text-end {% if ganancia_persona >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
             {% if ganancia_persona >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_persona) }}
           </td>
-          <td class="text-end text-muted">${{ '{:,.0f}'.format(ronda.total_inicial) }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -106,7 +104,6 @@
           <th class="text-end {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
             {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(tabla|sum(attribute='ganancia')) }}
           </th>
-          <th class="text-end">${{ '{:,.0f}'.format(ronda.total_inicial) }}</th>
         </tr>
       </tfoot>
     </table>
