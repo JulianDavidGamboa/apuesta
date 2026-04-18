@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(python3 -m pip install flask gunicorn)",
+      "Bash(where python *)",
+      "Bash(ls /c/Python*)",
+      "Read(//c/Users/Sigurdsonn/AppData/Local/Programs/**)",
+      "Bash(ls /c/Python* /c/python*)",
+      "Read(//c/Users/Sigurdsonn/**)",
+      "Bash(/c/Users/Sigurdsonn/.local/bin/uv run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5000/)",
+      "Bash(/c/Users/Sigurdsonn/AppData/Local/AnkiProgramFiles/python/cpython-3.13.5-windows-x86_64-none/python.exe -m pip install flask --quiet)",
+      "Bash(/c/Users/Sigurdsonn/AppData/Local/AnkiProgramFiles/python/cpython-3.13.5-windows-x86_64-none/python.exe -m venv venv)",
+      "Bash(echo \"venv created: $?\")",
+      "Bash(./venv/Scripts/pip install *)",
+      "Bash(FLASK_APP=app ./venv/Scripts/flask run --port 5000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:5000/nueva\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:5000/resumen\")",
+      "Bash(curl -s -X POST http://localhost:5000/nueva -d 'nombre=Apuesta+Test&total_inicial=1000000&total_ganado=1400000&nombre_p=Julian&porcentaje=60&nombre_p=Carlos&porcentaje=40' -w '%{http_code}' -o /dev/null)",
+      "Bash(curl -s http://localhost:5000/ronda/1)"
+    ]
+  }
+}

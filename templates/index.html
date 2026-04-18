@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Historial — Dinero{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0"><i class="bi bi-clock-history me-2"></i>Historial de rondas</h4>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('exportar_excel') }}" class="btn btn-success btn-sm">
+      <i class="bi bi-file-earmark-excel me-1"></i>Descargar Excel
+    </a>
+    <a href="{{ url_for('nueva_ronda') }}" class="btn btn-success">
+      <i class="bi bi-plus-lg me-1"></i>Nueva ronda
+    </a>
+  </div>
+</div>
+
+{% if not rondas %}
+<div class="card">
+  <div class="card-body text-center py-5 text-muted">
+    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+    No hay rondas aún. <a href="{{ url_for('nueva_ronda') }}">Crea la primera.</a>
+  </div>
+</div>
+{% else %}
+<div class="row g-3">
+  {% for r in rondas %}
+  {% set ganancia = r.total_ganado - r.total_inicial %}
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6 class="card-title mb-0 fw-bold">{{ r.nombre }}</h6>
+          <span class="badge bg-secondary">{{ r.fecha }}</span>
+        </div>
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="stat-box">
+              <div class="small text-muted">Total inicial</div>
+              <div class="value">${{ '{:,.0f}'.format(r.total_inicial) }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-box">
+              <div class="small text-muted">Total ganado</div>
+              <div class="value {% if ganancia >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+                ${{ '{:,.0f}'.format(r.total_ganado) }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('ver_ronda', id=r.id) }}" class="btn btn-sm btn-dark flex-fill">
+            <i class="bi bi-table me-1"></i>Ver tabla
+          </a>
+          <form action="{{ url_for('eliminar_ronda', id=r.id) }}" method="post"
+                onsubmit="return confirm('¿Eliminar esta ronda?')">
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

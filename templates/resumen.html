@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Resumen — Dinero{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Resumen por persona</h4>
+  <a href="{{ url_for('exportar_excel') }}" class="btn btn-success btn-sm">
+    <i class="bi bi-file-earmark-excel me-1"></i>Descargar Excel
+  </a>
+</div>
+
+{% if not datos %}
+<div class="card">
+  <div class="card-body text-center py-5 text-muted">
+    <i class="bi bi-people fs-1 d-block mb-2"></i>
+    No hay datos todavía. <a href="{{ url_for('nueva_ronda') }}">Crea una ronda.</a>
+  </div>
+</div>
+{% else %}
+
+<!-- Tarjetas resumen global -->
+{% set total_global_capital = datos|sum(attribute='total_capital') %}
+{% set total_global_ganado  = datos|sum(attribute='total_ganado') %}
+{% set total_global_recibido = datos|sum(attribute='total_recibido') %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4">
+    <div class="stat-box">
+      <div class="small text-muted">Capital total aportado</div>
+      <div class="value">${{ '{:,.0f}'.format(total_global_capital) }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="stat-box">
+      <div class="small text-muted">Total ganado (suma)</div>
+      <div class="value profit-positive">${{ '{:,.0f}'.format(total_global_ganado) }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="stat-box">
+      <div class="small text-muted">Total recibido</div>
+      <div class="value">${{ '{:,.0f}'.format(total_global_recibido) }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla por persona -->
+<div class="card">
+  <div class="card-header bg-dark text-white">
+    <i class="bi bi-people me-2"></i>Acumulado por persona
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Persona</th>
+          <th class="text-center">Rondas</th>
+          <th class="text-end">Capital total dado</th>
+          <th class="text-end">Total ganado</th>
+          <th class="text-end">Total recibido</th>
+          <th class="text-end">Ganancia neta</th>
+          <th class="text-end">ROI</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in datos %}
+        {% set ganancia_neta = d.total_recibido - d.total_capital %}
+        {% set roi = (ganancia_neta / d.total_capital * 100) if d.total_capital > 0 else 0 %}
+        <tr>
+          <td class="fw-semibold">{{ d.nombre }}</td>
+          <td class="text-center">
+            <span class="badge bg-secondary">{{ d.rondas }}</span>
+          </td>
+          <td class="text-end">${{ '{:,.0f}'.format(d.total_capital) }}</td>
+          <td class="text-end profit-positive">${{ '{:,.0f}'.format(d.total_ganado) }}</td>
+          <td class="text-end fw-bold">${{ '{:,.0f}'.format(d.total_recibido) }}</td>
+          <td class="text-end {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+            {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_neta) }}
+          </td>
+          <td class="text-end {% if roi >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+            {% if roi >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi) }}%
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-dark">
+        <tr>
+          <th>Total</th>
+          <td class="text-center">—</td>
+          <th class="text-end">${{ '{:,.0f}'.format(total_global_capital) }}</th>
+          <th class="text-end">${{ '{:,.0f}'.format(total_global_ganado) }}</th>
+          <th class="text-end">${{ '{:,.0f}'.format(total_global_recibido) }}</th>
+          {% set ganancia_global = total_global_recibido - total_global_capital %}
+          <th class="text-end {% if ganancia_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+            {% if ganancia_global >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_global) }}
+          </th>
+          {% set roi_global = (ganancia_global / total_global_capital * 100) if total_global_capital > 0 else 0 %}
+          <th class="text-end {% if roi_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+            {% if roi_global >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_global) }}%
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- Barras de progreso por persona -->
+<div class="card mt-4">
+  <div class="card-header bg-dark text-white">
+    <i class="bi bi-graph-up me-2"></i>Participación relativa
+  </div>
+  <div class="card-body">
+    {% for d in datos %}
+    {% set pct = (d.total_capital / total_global_capital * 100) if total_global_capital > 0 else 0 %}
+    <div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <span class="fw-semibold">{{ d.nombre }}</span>
+        <span class="text-muted small">{{ '{:.1f}'.format(pct) }}% del capital total</span>
+      </div>
+      <div class="progress" style="height:10px">
+        <div class="progress-bar bg-dark" style="width:{{ pct }}%"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

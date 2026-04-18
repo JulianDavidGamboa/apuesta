@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}{{ ronda.nombre }} — Dinero{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div>
+    <h4 class="mb-0">{{ ronda.nombre }}</h4>
+    <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>{{ ronda.fecha }}</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Historial
+    </a>
+    <form action="{{ url_for('eliminar_ronda', id=ronda.id) }}" method="post"
+          onsubmit="return confirm('¿Eliminar esta ronda?')">
+      <button class="btn btn-sm btn-outline-danger">
+        <i class="bi bi-trash me-1"></i>Eliminar
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Totales globales -->
+{% set ganancia_neta = ronda.total_ganado - ronda.total_inicial %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Total ingresado</div>
+      <div class="value">${{ '{:,.0f}'.format(ronda.total_inicial) }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Total ganado</div>
+      <div class="value {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+        ${{ '{:,.0f}'.format(ronda.total_ganado) }}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Ganancia neta</div>
+      <div class="value {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+        {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_neta) }}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Participantes</div>
+      <div class="value">{{ tabla|length }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabla detalle -->
+<div class="card">
+  <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-table me-2"></i>Distribución por persona</span>
+    <button class="btn btn-sm btn-outline-light" onclick="window.print()">
+      <i class="bi bi-printer me-1"></i>Imprimir
+    </button>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Persona</th>
+          <th class="text-center">% Participación</th>
+          <th class="text-end">Capital dado</th>
+          <th class="text-end">Dinero ganado</th>
+          <th class="text-end">Total que queda</th>
+          <th class="text-end">Ganancia</th>
+          <th class="text-end">Total inicial</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in tabla %}
+        {% set ganancia_persona = row.dinero_ganado %}
+        <tr>
+          <td class="fw-semibold">{{ row.nombre }}</td>
+          <td class="text-center">
+            <span class="badge bg-dark badge-pct">{{ row.porcentaje }}%</span>
+          </td>
+          <td class="text-end">${{ '{:,.0f}'.format(row.capital_dado) }}</td>
+          <td class="text-end {% if ganancia_persona >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+            ${{ '{:,.0f}'.format(row.dinero_ganado) }}
+          </td>
+          <td class="text-end fw-bold">${{ '{:,.0f}'.format(row.total_queda) }}</td>
+          <td class="text-end {% if ganancia_persona >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+            {% if ganancia_persona >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia_persona) }}
+          </td>
+          <td class="text-end text-muted">${{ '{:,.0f}'.format(ronda.total_inicial) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-dark">
+        <tr>
+          <th>Total</th>
+          <td class="text-center">
+            <span class="badge bg-secondary">{{ tabla|sum(attribute='porcentaje') }}%</span>
+          </td>
+          <th class="text-end">${{ '{:,.0f}'.format(tabla|sum(attribute='capital_dado')) }}</th>
+          <th class="text-end">${{ '{:,.0f}'.format(tabla|sum(attribute='dinero_ganado')) }}</th>
+          <th class="text-end">${{ '{:,.0f}'.format(tabla|sum(attribute='total_queda')) }}</th>
+          <th class="text-end {% if ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+            {% if ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(tabla|sum(attribute='ganancia')) }}
+          </th>
+          <th class="text-end">${{ '{:,.0f}'.format(ronda.total_inicial) }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}Nueva ronda — Kuazimides{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Nueva ronda</h5>
+      </div>
+      <div class="card-body">
+        {% if error %}
+        <div class="alert alert-danger py-2">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" id="form-ronda">
+          <!-- Info general -->
+          <div class="mb-4">
+            <h6 class="text-muted text-uppercase fw-bold mb-3" style="font-size:.75rem;letter-spacing:.08em">
+              Información de la ronda
+            </h6>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Nombre / descripción</label>
+                <input type="text" name="nombre" class="form-control" placeholder="Ej: Apuesta 17 abr" required>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Total ingresado al inicio ($)</label>
+                <input type="number" name="total_inicial" class="form-control bg-light" placeholder="0" step="any" id="total_inicial" readonly tabindex="-1">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label">Total ganado ($)</label>
+                <input type="number" name="total_ganado" class="form-control" placeholder="0" min="0" step="any" required id="total_ganado">
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Participantes -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="text-muted text-uppercase fw-bold mb-0" style="font-size:.75rem;letter-spacing:.08em">
+                Participantes
+              </h6>
+              <span class="badge bg-secondary" id="pct-total">Total: $0</span>
+            </div>
+
+            <div id="participantes-list">
+              <!-- filas generadas por JS -->
+            </div>
+
+            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addRow()">
+              <i class="bi bi-person-plus me-1"></i>Agregar persona
+            </button>
+          </div>
+
+          <!-- Preview rápido -->
+          <div id="preview-section" class="d-none mt-4">
+            <hr>
+            <h6 class="text-muted text-uppercase fw-bold mb-3" style="font-size:.75rem;letter-spacing:.08em">
+              Vista previa
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered mb-0" id="preview-table">
+                <thead>
+                  <tr>
+                    <th>Persona</th>
+                    <th>%</th>
+                    <th>Capital dado</th>
+                    <th>Dinero ganado</th>
+                    <th>Total que queda</th>
+                  </tr>
+                </thead>
+                <tbody id="preview-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-success px-4">
+              <i class="bi bi-check-lg me-1"></i>Guardar ronda
+            </button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let rowCount = 0;
+
+function fmt(n) {
+  return '$' + Number(n).toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+}
+
+function addRow(nombre='', aporte='') {
+  rowCount++;
+  const id = rowCount;
+  const div = document.createElement('div');
+  div.className = 'row g-2 mb-2 align-items-center participant-row';
+  div.dataset.id = id;
+  div.innerHTML = `
+    <div class="col">
+      <input type="text" name="nombre_p" class="form-control form-control-sm"
+             placeholder="Nombre" value="${nombre}" required oninput="updatePreview()">
+    </div>
+    <div class="col-auto" style="width:140px">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text">$</span>
+        <input type="number" class="form-control form-control-sm aporte-input"
+               placeholder="Aporte" min="0" step="any" value="${aporte}" required oninput="updatePreview()">
+      </div>
+    </div>
+    <div class="col-auto" style="width:70px">
+      <span class="badge bg-light text-dark border pct-display w-100 text-center">0%</span>
+    </div>
+    <div class="col-auto">
+      <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeRow(${id})">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>`;
+  document.getElementById('participantes-list').appendChild(div);
+  updatePreview();
+}
+
+function removeRow(id) {
+  document.querySelector(`.participant-row[data-id="${id}"]`).remove();
+  updatePreview();
+}
+
+function updatePreview() {
+  const totalGanado = parseFloat(document.getElementById('total_ganado').value) || 0;
+  const aporteInputs = document.querySelectorAll('.aporte-input');
+  const nameInputs   = document.querySelectorAll('input[name="nombre_p"]');
+  const pctDisplays  = document.querySelectorAll('.pct-display');
+
+  // Calcular total inicial como suma de aportes
+  let totalInicial = 0;
+  aporteInputs.forEach(i => totalInicial += parseFloat(i.value) || 0);
+
+  // Actualizar campo total_inicial (readonly)
+  document.getElementById('total_inicial').value = totalInicial || '';
+
+  // Badge resumen
+  const badge = document.getElementById('pct-total');
+  badge.textContent = 'Total: ' + fmt(totalInicial);
+  badge.className = 'badge ' + (totalInicial > 0 ? 'bg-success' : 'bg-secondary');
+
+  // Actualizar porcentajes mostrados y hidden inputs
+  document.querySelectorAll('input[name="porcentaje"]').forEach(e => e.remove());
+
+  const tbody = document.getElementById('preview-body');
+  tbody.innerHTML = '';
+  let hasRows = false;
+
+  aporteInputs.forEach((inp, i) => {
+    const aporte = parseFloat(inp.value) || 0;
+    const name   = nameInputs[i]?.value || '';
+    const pct    = totalInicial > 0 ? (aporte / totalInicial * 100) : 0;
+
+    // Mostrar % en la fila
+    if (pctDisplays[i]) pctDisplays[i].textContent = pct.toFixed(1) + '%';
+
+    // Agregar hidden input con el porcentaje calculado
+    const hidden = document.createElement('input');
+    hidden.type  = 'hidden';
+    hidden.name  = 'porcentaje';
+    hidden.value = pct.toFixed(6);
+    inp.closest('.participant-row').appendChild(hidden);
+
+    if (!name && aporte === 0) return;
+    hasRows = true;
+    const cap   = aporte;
+    const gan   = totalGanado * pct / 100;
+    const total = cap + gan;
+    const profitClass = gan >= 0 ? 'profit-positive' : 'profit-negative';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${name || '—'}</td>
+      <td>${pct.toFixed(1)}%</td>
+      <td>${fmt(cap)}</td>
+      <td class="${profitClass}">${fmt(gan)}</td>
+      <td><strong>${fmt(total)}</strong></td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('preview-section').classList.toggle('d-none', !hasRows || totalGanado === 0);
+}
+
+document.getElementById('total_ganado').addEventListener('input', updatePreview);
+
+// Iniciar con 2 filas vacías
+addRow();
+addRow();
+</script>
+{% endblock %}
