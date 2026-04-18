@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 import io
 import json
@@ -66,6 +67,18 @@ def init_db():
                 FOREIGN KEY (ronda_id) REFERENCES rondas(id)
             )
         ''')
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS personas (
+                id SERIAL PRIMARY KEY,
+                nombre TEXT NOT NULL UNIQUE
+            )
+        ''')
+        # Migrate existing names
+        cur.execute('''
+            INSERT INTO personas (nombre)
+            SELECT DISTINCT LOWER(TRIM(nombre)) FROM participantes
+            ON CONFLICT (nombre) DO NOTHING
+        ''')
         conn.commit()
         cur.close()
     else:
@@ -84,6 +97,12 @@ def init_db():
                 porcentaje REAL NOT NULL,
                 FOREIGN KEY (ronda_id) REFERENCES rondas(id)
             );
+            CREATE TABLE IF NOT EXISTS personas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL UNIQUE
+            );
+            INSERT OR IGNORE INTO personas (nombre)
+            SELECT DISTINCT LOWER(TRIM(nombre)) FROM participantes;
         ''')
     conn.close()
 
@@ -187,10 +206,12 @@ def nueva_ronda():
         total_ganado = float(request.form.get('total_ganado', 0))
         nombres_p = request.form.getlist('nombre_p')
         porcentajes = request.form.getlist('porcentaje')
-        fecha = datetime.now().strftime('%Y-%m-%d %H:%M')
+        fecha = datetime.now(ZoneInfo('America/Bogota')).strftime('%Y-%m-%d %H:%M')
 
         if not nombre or not nombres_p:
-            return render_template('nueva.html', error='Completa todos los campos.')
+            personas_list = query('SELECT nombre FROM personas ORDER BY nombre ASC')
+            return render_template('nueva.html', error='Completa todos los campos.',
+                                   personas=[r['nombre'] for r in personas_list])
 
         if USE_PG:
             ronda_id = execute(
@@ -217,7 +238,8 @@ def nueva_ronda():
 
         return redirect(url_for('ver_ronda', id=ronda_id))
 
-    return render_template('nueva.html', error=None)
+    personas_list = query('SELECT nombre FROM personas ORDER BY nombre ASC')
+    return render_template('nueva.html', error=None, personas=[r['nombre'] for r in personas_list])
 
 
 @app.route('/ronda/<int:id>')
@@ -357,6 +379,38 @@ def calendario():
     return render_template('calendario.html', rondas_por_fecha=json.dumps(rondas_por_fecha))
 
 
+@app.route('/personas')
+def personas():
+    lista = query('SELECT * FROM personas ORDER BY nombre ASC')
+    return render_template('personas.html', personas=lista)
+
+
+@app.route('/personas/agregar', methods=['POST'])
+def agregar_persona():
+    nombre = request.form.get('nombre', '').strip().lower()
+    if nombre:
+        try:
+            if USE_PG:
+                execute('INSERT INTO personas (nombre) VALUES (%s) ON CONFLICT (nombre) DO NOTHING', (nombre,))
+            else:
+                execute('INSERT OR IGNORE INTO personas (nombre) VALUES (?)', (nombre,))
+        except Exception:
+            pass
+    return redirect(url_for('personas'))
+
+
+@app.route('/personas/<int:id>/eliminar', methods=['POST'])
+def eliminar_persona(id):
+    execute(_sql('DELETE FROM personas WHERE id = ?'), (id,))
+    return redirect(url_for('personas'))
+
+
+@app.route('/api/personas')
+def api_personas():
+    lista = query('SELECT nombre FROM personas ORDER BY nombre ASC')
+    return jsonify([r['nombre'] for r in lista])
+
+
 @app.route('/exportar')
 def exportar_excel():
     rondas = query('SELECT * FROM rondas ORDER BY fecha DESC')
@@ -442,7 +496,7 @@ def exportar_excel():
     buf = io.BytesIO()
     wb.save(buf)
     buf.seek(0)
-    filename = f'kuazimides_{datetime.now().strftime("%Y%m%d_%H%M")}.xlsx'
+    filename = f'kuazimides_{datetime.now(ZoneInfo('America/Bogota')).strftime("%Y%m%d_%H%M")}.xlsx'
     return send_file(buf, as_attachment=True, download_name=filename,
                      mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Personas — Kuazimides{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+    <i class="bi bi-people text-indigo-500"></i> Personas registradas
+  </h1>
+
+  <!-- Formulario agregar -->
+  <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+    <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Agregar persona</p>
+    <form method="post" action="{{ url_for('agregar_persona') }}" class="flex gap-3">
+      <input type="text" name="nombre" required
+             class="flex-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+             placeholder="Nombre de la persona">
+      <button type="submit"
+              class="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500 transition">
+        <i class="bi bi-person-plus"></i> Agregar
+      </button>
+    </form>
+  </div>
+
+  <!-- Lista -->
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    {% if personas %}
+    <table class="w-full text-sm">
+      <thead class="bg-slate-900 text-white text-xs uppercase tracking-wide">
+        <tr>
+          <th class="px-5 py-3 text-left">Nombre</th>
+          <th class="px-5 py-3 text-right">Acción</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        {% for p in personas %}
+        <tr class="hover:bg-slate-50 transition">
+          <td class="px-5 py-3 font-medium text-slate-800 capitalize">{{ p.nombre }}</td>
+          <td class="px-5 py-3 text-right">
+            <form method="post" action="{{ url_for('eliminar_persona', id=p.id) }}"
+                  onsubmit="return confirm('¿Eliminar a {{ p.nombre }}?')">
+              <button type="submit"
+                      class="text-xs px-3 py-1.5 rounded-lg text-rose-500 hover:bg-rose-50 border border-rose-200 transition">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="px-6 py-12 text-center text-slate-400">
+      <i class="bi bi-person-x text-4xl block mb-2"></i>
+      <p class="text-sm">No hay personas registradas. Agrega la primera arriba.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

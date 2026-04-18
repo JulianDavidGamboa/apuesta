@@ -31,31 +31,42 @@
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
       <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-        <img src="{{ url_for('static', filename='kuaza.png') }}" alt="logo"
+        <img src="{{ url_for('static', filename='kuaza.png') }}?v={{ range(1000,9999) | random }}" alt="logo"
              class="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-400">
         <span class="text-white font-bold text-lg tracking-wide">Kuazimides</span>
       </a>
 
       <!-- Nav links -->
+      {% set ep = request.endpoint %}
       <div class="hidden sm:flex items-center gap-2">
         <a href="{{ url_for('index') }}"
-           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition
+                  {{ 'bg-slate-700 text-white font-medium' if ep == 'index' else 'text-slate-300 hover:text-white hover:bg-slate-700' }}">
           <i class="bi bi-clock-history"></i> Historial
         </a>
         <a href="{{ url_for('resumen') }}"
-           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition
+                  {{ 'bg-slate-700 text-white font-medium' if ep == 'resumen' else 'text-slate-300 hover:text-white hover:bg-slate-700' }}">
           <i class="bi bi-bar-chart"></i> Resumen
         </a>
         <a href="{{ url_for('estadisticas') }}"
-           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition
+                  {{ 'bg-slate-700 text-white font-medium' if ep == 'estadisticas' else 'text-slate-300 hover:text-white hover:bg-slate-700' }}">
           <i class="bi bi-graph-up-arrow"></i> Estadísticas
         </a>
         <a href="{{ url_for('calendario') }}"
-           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-slate-300 hover:text-white hover:bg-slate-700 transition">
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition
+                  {{ 'bg-slate-700 text-white font-medium' if ep == 'calendario' else 'text-slate-300 hover:text-white hover:bg-slate-700' }}">
           <i class="bi bi-calendar3"></i> Calendario
         </a>
+        <a href="{{ url_for('personas') }}"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition
+                  {{ 'bg-slate-700 text-white font-medium' if ep == 'personas' else 'text-slate-300 hover:text-white hover:bg-slate-700' }}">
+          <i class="bi bi-people"></i> Personas
+        </a>
         <a href="{{ url_for('nueva_ronda') }}"
-           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-indigo-600 text-white hover:bg-indigo-500 transition font-medium">
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition font-medium
+                  {{ 'bg-indigo-400 text-white' if ep == 'nueva_ronda' else 'bg-indigo-600 text-white hover:bg-indigo-500' }}">
           <i class="bi bi-plus-lg"></i> Nueva ronda
         </a>
       </div>
@@ -70,19 +81,28 @@
   <!-- Mobile menu -->
   <div id="mobile-menu" class="hidden sm:hidden border-t border-slate-700">
     <div class="px-4 py-3 flex flex-col gap-1">
-      <a href="{{ url_for('index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
+      <a href="{{ url_for('index') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition
+         {{ 'bg-slate-700 text-white font-medium' if ep == 'index' else 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
         <i class="bi bi-clock-history"></i> Historial
       </a>
-      <a href="{{ url_for('resumen') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
+      <a href="{{ url_for('resumen') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition
+         {{ 'bg-slate-700 text-white font-medium' if ep == 'resumen' else 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
         <i class="bi bi-bar-chart"></i> Resumen
       </a>
-      <a href="{{ url_for('estadisticas') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
+      <a href="{{ url_for('estadisticas') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition
+         {{ 'bg-slate-700 text-white font-medium' if ep == 'estadisticas' else 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
         <i class="bi bi-graph-up-arrow"></i> Estadísticas
       </a>
-      <a href="{{ url_for('calendario') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white text-sm transition">
+      <a href="{{ url_for('calendario') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition
+         {{ 'bg-slate-700 text-white font-medium' if ep == 'calendario' else 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
         <i class="bi bi-calendar3"></i> Calendario
       </a>
-      <a href="{{ url_for('nueva_ronda') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium">
+      <a href="{{ url_for('personas') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition
+         {{ 'bg-slate-700 text-white font-medium' if ep == 'personas' else 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
+        <i class="bi bi-people"></i> Personas
+      </a>
+      <a href="{{ url_for('nueva_ronda') }}" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition
+         {{ 'bg-indigo-400 text-white' if ep == 'nueva_ronda' else 'bg-indigo-600 text-white' }}">
         <i class="bi bi-plus-lg"></i> Nueva ronda
       </a>
     </div>

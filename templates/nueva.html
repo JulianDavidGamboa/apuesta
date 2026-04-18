@@ -97,6 +97,11 @@
 {% endblock %}
 
 {% block scripts %}
+<datalist id="personas-list">
+  {% for p in personas %}
+  <option value="{{ p }}">
+  {% endfor %}
+</datalist>
 <script>
 let rowCount = 0;
 
@@ -111,7 +116,7 @@ function addRow(nombre='', aporte='') {
   div.className = 'flex items-center gap-2 participant-row';
   div.dataset.id = id;
   div.innerHTML = `
-    <input type="text" name="nombre_p"
+    <input type="text" name="nombre_p" list="personas-list"
            class="flex-1 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
            placeholder="Nombre" value="${nombre}" required oninput="updatePreview()">
     <div class="flex items-center border border-slate-200 rounded-xl overflow-hidden" style="width:150px">
