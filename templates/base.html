@@ -31,8 +31,8 @@
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
       <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-        <img src="{{ url_for('static', filename='kuaza.png') }}?v={{ range(1000,9999) | random }}" alt="logo"
-             class="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-400">
+        <img id="logo-img" src="{{ url_for('static', filename='kuaza.png') }}?v={{ range(1000,9999) | random }}" alt="logo"
+             class="w-9 h-9 rounded-full object-cover ring-2 ring-indigo-400 cursor-zoom-in hover:ring-indigo-300 transition">
         <span class="text-white font-bold text-lg tracking-wide">Kuazimides</span>
       </a>
 
@@ -109,6 +109,20 @@
   </div>
 </nav>
 
+<!-- Logo modal -->
+<div id="logo-modal" class="fixed inset-0 z-[200] hidden items-center justify-center">
+  <div id="logo-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+  <div class="relative z-10 flex flex-col items-center gap-4">
+    <img src="{{ url_for('static', filename='kuaza.png') }}?v={{ range(1000,9999) | random }}"
+         alt="logo" class="w-64 h-64 rounded-3xl object-cover shadow-2xl ring-4 ring-indigo-400
+                           scale-0 transition-transform duration-300 ease-out" id="logo-modal-img">
+    <button id="logo-modal-close"
+            class="text-white/70 hover:text-white text-sm flex items-center gap-1 transition">
+      <i class="bi bi-x-circle"></i> Cerrar
+    </button>
+  </div>
+</div>
+
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
   {% block content %}{% endblock %}
 </main>
@@ -118,6 +132,26 @@
   document.getElementById('menu-btn').addEventListener('click', function() {
     document.getElementById('mobile-menu').classList.toggle('hidden');
   });
+
+  const modal = document.getElementById('logo-modal');
+  const modalImg = document.getElementById('logo-modal-img');
+
+  function openLogoModal(e) {
+    e.preventDefault();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => modalImg.classList.replace('scale-0', 'scale-100'), 10);
+  }
+
+  function closeLogoModal() {
+    modalImg.classList.replace('scale-100', 'scale-0');
+    setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+  }
+
+  document.getElementById('logo-img').addEventListener('click', openLogoModal);
+  document.getElementById('logo-backdrop').addEventListener('click', closeLogoModal);
+  document.getElementById('logo-modal-close').addEventListener('click', closeLogoModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLogoModal(); });
 </script>
 </body>
 </html>
