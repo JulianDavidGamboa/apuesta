@@ -264,6 +264,56 @@ def resumen():
     return render_template('resumen.html', datos=datos)
 
 
+@app.route('/estadisticas')
+def estadisticas():
+    # Globales
+    globales = query('''
+        SELECT
+            COUNT(*) AS total_rondas,
+            SUM(total_inicial) AS capital_total,
+            SUM(total_ganado - total_inicial) AS ganancia_total,
+            SUM(total_ganado) AS valor_final_total
+        FROM rondas
+    ''', one=True)
+
+    mejor_ronda = query('''
+        SELECT nombre, fecha,
+               (total_ganado - total_inicial) AS ganancia
+        FROM rondas ORDER BY ganancia DESC LIMIT 1
+    ''', one=True)
+
+    peor_ronda = query('''
+        SELECT nombre, fecha,
+               (total_ganado - total_inicial) AS ganancia
+        FROM rondas ORDER BY ganancia ASC LIMIT 1
+    ''', one=True)
+
+    # Por persona
+    por_persona = query('''
+        SELECT
+            LOWER(TRIM(p.nombre)) AS nombre,
+            COUNT(DISTINCT p.ronda_id) AS rondas,
+            SUM(r.total_inicial * p.porcentaje / 100) AS capital,
+            SUM((r.total_ganado - r.total_inicial) * p.porcentaje / 100) AS ganancia_neta,
+            SUM(r.total_ganado * p.porcentaje / 100) AS valor_final,
+            MAX((r.total_ganado - r.total_inicial) * p.porcentaje / 100) AS mejor_ronda,
+            MIN((r.total_ganado - r.total_inicial) * p.porcentaje / 100) AS peor_ronda,
+            AVG((r.total_ganado - r.total_inicial) * p.porcentaje / 100) AS promedio_ronda,
+            SUM(CASE WHEN (r.total_ganado - r.total_inicial) > 0 THEN 1 ELSE 0 END) AS rondas_ganadas,
+            SUM(CASE WHEN (r.total_ganado - r.total_inicial) < 0 THEN 1 ELSE 0 END) AS rondas_perdidas
+        FROM participantes p
+        JOIN rondas r ON p.ronda_id = r.id
+        GROUP BY LOWER(TRIM(p.nombre))
+        ORDER BY ganancia_neta DESC
+    ''')
+
+    return render_template('estadisticas.html',
+                           globales=globales,
+                           mejor_ronda=mejor_ronda,
+                           peor_ronda=peor_ronda,
+                           por_persona=por_persona)
+
+
 @app.route('/exportar')
 def exportar_excel():
     rondas = query('SELECT * FROM rondas ORDER BY fecha DESC')

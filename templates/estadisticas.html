@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}Estadísticas — Kuazimides{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Estadísticas</h4>
+</div>
+
+{% if not globales or not globales.total_rondas %}
+<div class="card">
+  <div class="card-body text-center py-5 text-muted">
+    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+    No hay datos todavía. <a href="{{ url_for('nueva_ronda') }}">Crea una ronda.</a>
+  </div>
+</div>
+{% else %}
+
+{% set capital      = globales.capital_total or 0 %}
+{% set ganancia     = globales.ganancia_total or 0 %}
+{% set valor_final  = globales.valor_final_total or 0 %}
+{% set roi_global   = (ganancia / capital * 100) if capital > 0 else 0 %}
+
+<!-- Globales -->
+<h6 class="text-muted text-uppercase fw-bold mb-3" style="font-size:.75rem;letter-spacing:.08em">
+  Totales globales
+</h6>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Rondas jugadas</div>
+      <div class="value">{{ globales.total_rondas }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Capital total invertido</div>
+      <div class="value">${{ '{:,.0f}'.format(capital) }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Ganancia neta total</div>
+      <div class="value {% if ganancia >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+        {% if ganancia >= 0 %}+{% endif %}${{ '{:,.0f}'.format(ganancia) }}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Valor final total</div>
+      <div class="value">${{ '{:,.0f}'.format(valor_final) }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">ROI global</div>
+      <div class="value {% if roi_global >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+        {% if roi_global >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_global) }}%
+      </div>
+    </div>
+  </div>
+  {% if mejor_ronda %}
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Mejor ronda</div>
+      <div class="value profit-positive" style="font-size:1rem">{{ mejor_ronda.nombre }}</div>
+      <div class="small profit-positive">+${{ '{:,.0f}'.format(mejor_ronda.ganancia) }}</div>
+    </div>
+  </div>
+  {% endif %}
+  {% if peor_ronda %}
+  <div class="col-6 col-md-3">
+    <div class="stat-box">
+      <div class="small text-muted">Peor ronda</div>
+      <div class="value profit-negative" style="font-size:1rem">{{ peor_ronda.nombre }}</div>
+      <div class="small profit-negative">${{ '{:,.0f}'.format(peor_ronda.ganancia) }}</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Por persona -->
+<h6 class="text-muted text-uppercase fw-bold mb-3" style="font-size:.75rem;letter-spacing:.08em">
+  Estadísticas por persona
+</h6>
+<div class="row g-3">
+  {% for p in por_persona %}
+  {% set roi_p = (p.ganancia_neta / p.capital * 100) if p.capital > 0 else 0 %}
+  {% set win_rate = (p.rondas_ganadas / p.rondas * 100) if p.rondas > 0 else 0 %}
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <span class="fw-bold text-capitalize">{{ p.nombre }}</span>
+        <span class="badge bg-secondary">{{ p.rondas }} ronda{{ 's' if p.rondas != 1 }}</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="stat-box">
+              <div class="small text-muted">Capital aportado</div>
+              <div class="value" style="font-size:1.1rem">${{ '{:,.0f}'.format(p.capital) }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-box">
+              <div class="small text-muted">Ganancia neta</div>
+              <div class="value {% if p.ganancia_neta >= 0 %}profit-positive{% else %}profit-negative{% endif %}" style="font-size:1.1rem">
+                {% if p.ganancia_neta >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.ganancia_neta) }}
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-box">
+              <div class="small text-muted">Valor final</div>
+              <div class="value" style="font-size:1.1rem">${{ '{:,.0f}'.format(p.valor_final) }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-box">
+              <div class="small text-muted">ROI</div>
+              <div class="value {% if roi_p >= 0 %}profit-positive{% else %}profit-negative{% endif %}" style="font-size:1.1rem">
+                {% if roi_p >= 0 %}+{% endif %}{{ '{:.1f}'.format(roi_p) }}%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <div class="d-flex justify-content-between mb-1 small">
+            <span class="text-success">Ganadas: {{ p.rondas_ganadas }}</span>
+            <span class="text-danger">Perdidas: {{ p.rondas_perdidas }}</span>
+            <span class="text-muted">Win rate: {{ '{:.0f}'.format(win_rate) }}%</span>
+          </div>
+          <div class="progress" style="height:8px">
+            <div class="progress-bar bg-success" style="width:{{ win_rate }}%"></div>
+            <div class="progress-bar bg-danger" style="width:{{ 100 - win_rate }}%"></div>
+          </div>
+        </div>
+
+        <div class="row g-2 mt-1">
+          <div class="col-6">
+            <div class="small text-muted">Mejor ronda</div>
+            <div class="small profit-positive fw-bold">
+              {% if p.mejor_ronda >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.mejor_ronda) }}
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Peor ronda</div>
+            <div class="small profit-negative fw-bold">
+              ${{ '{:,.0f}'.format(p.peor_ronda) }}
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Promedio por ronda</div>
+            <div class="small {% if p.promedio_ronda >= 0 %}profit-positive{% else %}profit-negative{% endif %} fw-bold">
+              {% if p.promedio_ronda >= 0 %}+{% endif %}${{ '{:,.0f}'.format(p.promedio_ronda) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
